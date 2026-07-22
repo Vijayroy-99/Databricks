@@ -124,3 +124,14 @@ Delta time travel provides reproducibility — any prior state of any table can 
 ## Built with
 
 Databricks Free Edition · Apache Spark (PySpark) · Delta Lake · Auto Loader · Unity Catalog · Databricks SQL · AI/BI Dashboards
+
+
+## Dashboards Screenshots
+<img width="538" height="272" alt="Screenshot 2026-07-22 144847" src="https://github.com/user-attachments/assets/4ba98e01-e7a3-4e75-af7c-0d03eea02a30" />
+
+<img width="599" height="322" alt="Screenshot 2026-07-22 153058" src="https://github.com/user-attachments/assets/9e9d4702-c886-4d8b-bbc8-fec9b0b3a236" />
+
+<img width="937" height="413" alt="Screenshot 2026-07-22 161552" src="https://github.com/user-attachments/assets/5a817040-d0a8-4f1b-937c-bcf112e7f8f2" />
+
+<img width="935" height="278" alt="Screenshot 2026-07-22 161603" src="https://github.com/user-attachments/assets/6eb8ba01-1529-486f-846b-c4e1ee5fe742" />
+
