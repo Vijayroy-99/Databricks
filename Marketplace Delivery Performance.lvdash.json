@@ -1,0 +1,725 @@
+{
+  "datasets": [
+    {
+      "name": "1eddf79a",
+      "displayName": "fact",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT *,\r\n       CAST(is_late AS INT) * 100 AS late_pct_flag\r\nFROM olist.gold.fact_order_delivery",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "c0ee9eb4",
+      "displayName": "delivery_impact",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT\r\n  CASE\r\n    WHEN days_late <= -5 THEN 'Early (5+ days)'\r\n    WHEN days_late <   0 THEN 'Early (1-4 days)'\r\n    WHEN days_late =   0 THEN 'On time'\r\n    WHEN days_late <=  3 THEN 'Late (1-3 days)'\r\n    WHEN days_late <= 10 THEN 'Late (4-10 days)'\r\n    ELSE 'Late (10+ days)'\r\n  END AS delivery_bucket,\r\n  MIN(days_late) AS sort_key,\r\n  COUNT(*) AS orders,\r\n  ROUND(AVG(review_score), 2) AS avg_review\r\nFROM olist.gold.fact_order_delivery\r\nWHERE review_score IS NOT NULL\r\nGROUP BY 1",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fa6b7b37",
+      "displayName": "monthly",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT * FROM olist.gold.agg_monthly_trend WHERE orders > 100",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "df4fb48f",
+      "displayName": "sellers",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT * FROM olist.gold.agg_seller_performance",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a0f11fa7",
+      "displayName": "states",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT * FROM olist.gold.agg_state_delivery WHERE orders > 500",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "e7e45201",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "late-delivery-rate",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1eddf79a",
+                  "fields": [
+                    {
+                      "name": "avg(late_pct_flag)",
+                      "expression": "AVG(`late_pct_flag`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Late Delivery Rate"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(late_pct_flag)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "avg-delivery-days",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1eddf79a",
+                  "fields": [
+                    {
+                      "name": "avg(delivery_days)",
+                      "expression": "AVG(`delivery_days`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Avg Delivery Days"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(delivery_days)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "avg-review-score",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1eddf79a",
+                  "fields": [
+                    {
+                      "name": "avg(review_score)",
+                      "expression": "AVG(`review_score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Avg Review Score"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(review_score)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 1,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "orders-analyzed",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1eddf79a",
+                  "fields": [
+                    {
+                      "name": "count(order_id)",
+                      "expression": "COUNT(`order_id`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Orders Analyzed"
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(order_id)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 1,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "review-score-falls-delivery-slips",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "c0ee9eb4",
+                  "fields": [
+                    {
+                      "name": "delivery_bucket",
+                      "expression": "`delivery_bucket`"
+                    },
+                    {
+                      "name": "avg(avg_review)",
+                      "expression": "AVG(`avg_review`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "AVG(`avg_review`)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Review Score Falls as Delivery Slips"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "delivery_bucket",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "measure",
+                      "measure": {
+                        "fieldName": "avg(avg_review)"
+                      }
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "avg(avg_review)",
+                  "axis": {
+                    "title": "Average Review Score"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "late-delivery-rate-over-time",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fa6b7b37",
+                  "fields": [
+                    {
+                      "name": "monthly(order_month)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `order_month`)"
+                    },
+                    {
+                      "name": "avg(late_pct)",
+                      "expression": "AVG(`late_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Late Delivery Rate Over Time"
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "monthly(order_month)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "avg(late_pct)",
+                  "axis": {
+                    "title": "Late Delivery Rate (%)"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "sellers-revenue-at-risk",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "df4fb48f",
+                  "fields": [
+                    {
+                      "name": "primary_seller_id",
+                      "expression": "`primary_seller_id`"
+                    },
+                    {
+                      "name": "seller_state",
+                      "expression": "`seller_state`"
+                    },
+                    {
+                      "name": "orders",
+                      "expression": "`orders`"
+                    },
+                    {
+                      "name": "on_time_pct",
+                      "expression": "`on_time_pct`"
+                    },
+                    {
+                      "name": "avg_review",
+                      "expression": "`avg_review`"
+                    },
+                    {
+                      "name": "revenue",
+                      "expression": "`revenue`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "freezeUpToColumnNumber": 6,
+              "frame": {
+                "showTitle": true,
+                "title": "Sellers by Revenue at Risk"
+              },
+              "rowsPerPage": 10,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "primary_seller_id"
+                  },
+                  {
+                    "fieldName": "seller_state"
+                  },
+                  {
+                    "fieldName": "orders"
+                  },
+                  {
+                    "fieldName": "on_time_pct"
+                  },
+                  {
+                    "fieldName": "avg_review"
+                  },
+                  {
+                    "fieldName": "revenue"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "average-delivery-days-by-state",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a0f11fa7",
+                  "fields": [
+                    {
+                      "name": "customer_state",
+                      "expression": "`customer_state`"
+                    },
+                    {
+                      "name": "sum(avg_delivery_days)",
+                      "expression": "SUM(`avg_delivery_days`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "SUM(`avg_delivery_days`)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Average Delivery Days by State"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "customer_state",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "measure",
+                      "measure": {
+                        "fieldName": "sum(avg_delivery_days)"
+                      }
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(avg_delivery_days)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 9,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "6deac568",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## What we found\n",
+                "\n",
+                "**Late delivery costs 2.6 review points.** Orders arriving 10+ days late<br>average 1.7 stars versus 4.3 for early deliveries. 6.8% of delivered orders<br>miss their promised date.\n",
+                "\n",
+                "**Lateness is seasonal, not chronic.** The baseline sits near 3-4%, but<br>demand peaks drive spikes above 19% — the problem is capacity, not process.\n",
+                "\n",
+                "**Geography drives delivery time.** Remote states average materially longer<br>delivery windows than the southeast corridor, and freight costs follow.\n",
+                "\n",
+                "## Recommended actions\n",
+                "\n",
+                "1. Set seller-specific promise dates rather than a single national estimate\n",
+                "2. Add carrier capacity ahead of known demand peaks\n",
+                "3. Review the bottom sellers by on-time rate, weighted by revenue exposure"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "fact-purchased-at",
+            "queries": [
+              {
+                "name": "dashboards/01f185fdba4d1df1b8470fb728db022e/datasets/01f185fdfdc4149aa79f5e16141d46dd_purchased_at",
+                "query": {
+                  "datasetName": "1eddf79a",
+                  "fields": [
+                    {
+                      "name": "purchased_at",
+                      "expression": "`purchased_at`"
+                    },
+                    {
+                      "name": "purchased_at_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": ""
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "purchased_at",
+                    "queryName": "dashboards/01f185fdba4d1df1b8470fb728db022e/datasets/01f185fdfdc4149aa79f5e16141d46dd_purchased_at"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 0,
+            "width": 4,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "7370eb2b",
+            "queries": [
+              {
+                "name": "dashboards/01f185fdba4d1df1b8470fb728db022e/datasets/01f185fdfdc4149aa79f5e16141d46dd_customer_state",
+                "query": {
+                  "datasetName": "1eddf79a",
+                  "fields": [
+                    {
+                      "name": "customer_state",
+                      "expression": "`customer_state`"
+                    },
+                    {
+                      "name": "customer_state_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "customer_state",
+                    "queryName": "dashboards/01f185fdba4d1df1b8470fb728db022e/datasets/01f185fdfdc4149aa79f5e16141d46dd_customer_state"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 0,
+            "width": 4,
+            "height": 1
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "dbb1f1e9",
+      "displayName": "Global Filters",
+      "layout": [
+        {
+          "widget": {
+            "name": "3de58493",
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-single-select",
+              "encodings": {},
+              "frame": {
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
